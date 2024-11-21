@@ -36,6 +36,12 @@
         button:hover {
             background-color: #005bb5;
         }
+        .reset-button {
+            background-color: #ff4c4c;
+        }
+        .reset-button:hover {
+            background-color: #cc0000;
+        }
     </style>
 </head>
 <body>
@@ -123,6 +129,8 @@
                 const result = document.createElement("p");
                 result.textContent = questions[currentQuestion];
                 container.appendChild(result);
+
+                addResetButton(container);
                 return;
             }
 
@@ -140,6 +148,8 @@
             noButton.textContent = "No";
             noButton.onclick = () => handleAnswer("no");
             container.appendChild(noButton);
+
+            addResetButton(container);
         }
 
         function handleAnswer(answer) {
@@ -155,6 +165,20 @@
         function showResult(result) {
             const container = document.getElementById("question-container");
             container.innerHTML = `<h3>Outcome:</h3><p>${result}</p>`;
+            addResetButton(container);
+        }
+
+        function addResetButton(container) {
+            const resetButton = document.createElement("button");
+            resetButton.textContent = "Reset";
+            resetButton.className = "reset-button";
+            resetButton.onclick = resetAlgorithm;
+            container.appendChild(resetButton);
+        }
+
+        function resetAlgorithm() {
+            currentQuestion = 0;
+            displayQuestion();
         }
 
         displayQuestion();
