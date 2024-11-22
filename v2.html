@@ -55,6 +55,12 @@
         .reset-button:hover {
             background-color: #cc0000;
         }
+        .back-button {
+            background-color: #ffa500;
+        }
+        .back-button:hover {
+            background-color: #cc8400;
+        }
         @media (min-width: 768px) {
             body {
                 flex-direction: row;
@@ -139,6 +145,7 @@
         };
 
         let currentQuestion = 0;
+        let history = [];
 
         function displayQuestion() {
             const container = document.getElementById("question-container");
@@ -149,6 +156,7 @@
                 result.textContent = questions[currentQuestion];
                 container.appendChild(result);
 
+                addBackButton(container);
                 addResetButton(container);
                 return;
             }
@@ -168,10 +176,12 @@
             noButton.onclick = () => handleAnswer("no");
             container.appendChild(noButton);
 
+            addBackButton(container);
             addResetButton(container);
         }
 
         function handleAnswer(answer) {
+            history.push(currentQuestion);
             const nextStep = questions[currentQuestion][answer];
             if (typeof nextStep === "string") {
                 showResult(nextStep);
@@ -184,6 +194,7 @@
         function showResult(result) {
             const container = document.getElementById("question-container");
             container.innerHTML = `<h3>Outcome:</h3><p>${result}</p>`;
+            addBackButton(container);
             addResetButton(container);
         }
 
@@ -195,9 +206,27 @@
             container.appendChild(resetButton);
         }
 
+        function addBackButton(container) {
+            if (history.length > 0) {
+                const backButton = document.createElement("button");
+                backButton.textContent = "Back";
+                backButton.className = "back-button";
+                backButton.onclick = goBack;
+                container.appendChild(backButton);
+            }
+        }
+
         function resetAlgorithm() {
             currentQuestion = 0;
+            history = [];
             displayQuestion();
+        }
+
+        function goBack() {
+            if (history.length > 0) {
+                currentQuestion = history.pop();
+                displayQuestion();
+            }
         }
 
         displayQuestion();
