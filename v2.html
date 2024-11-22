@@ -22,9 +22,22 @@
         .sidebar h2 {
             color: #f4f4f9;
         }
-        .sidebar p {
-            margin-bottom: 15px;
-            font-size: 1em;
+        .sidebar .box {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid white;
+            border-radius: 5px;
+        }
+        .sidebar .question {
+            background-color: #005bb5;
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+        }
+        .sidebar .answer {
+            background-color: #0073e6;
+            padding: 5px;
+            border-radius: 3px;
         }
         .main-content {
             flex: 1;
@@ -75,10 +88,14 @@
 <body>
     <div class="sidebar">
         <h2>Chronic Cough Algorithm</h2>
-        <p><strong>Question 1:</strong> Cough for more than 8 weeks?</p>
-        <p><em>If "Yes," stop: this is not chronic cough.</em></p>
-        <p><strong>Question 2:</strong> Red flag symptoms? (e.g., chest pain, hemoptysis, shortness of breath)</p>
-        <p><em>If "Yes," recommend urgent referral.</em></p>
+        <div class="box">
+            <div class="question"><strong>Question 1:</strong> Cough for more than 8 weeks?</div>
+            <div class="answer"><em>If "Yes," stop: this is not chronic cough.</em></div>
+        </div>
+        <div class="box">
+            <div class="question"><strong>Question 2:</strong> Red flag symptoms? (e.g., chest pain, hemoptysis, shortness of breath)</div>
+            <div class="answer"><em>If "Yes," recommend urgent referral.</em></div>
+        </div>
     </div>
     <div class="main-content">
         <h2>Decision Path</h2>
