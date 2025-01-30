@@ -7,16 +7,42 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
             background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
         }
-        .container {
-            max-width: 600px;
-            margin: auto;
+        .sidebar {
             padding: 20px;
-            background-color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+            background-color: #0073e6;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        .sidebar h2 {
+            color: #f4f4f9;
+        }
+        .sidebar .box {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid white;
+            border-radius: 5px;
+        }
+        .sidebar .question {
+            background-color: #005bb5;
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+        }
+        .sidebar .answer {
+            background-color: #0073e6;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            box-sizing: border-box;
         }
         h2 {
             color: #0073e6;
@@ -42,77 +68,93 @@
         .reset-button:hover {
             background-color: #cc0000;
         }
+        .back-button {
+            background-color: #ffa500;
+        }
+        .back-button:hover {
+            background-color: #cc8400;
+        }
+        @media (min-width: 768px) {
+            body {
+                flex-direction: row;
+            }
+            .sidebar {
+                width: 25%;
+                height: 100vh;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="sidebar">
         <h2>Chronic Cough Algorithm</h2>
+        <div class="box">
+            <div class="question"><strong>Question 1:</strong> Cough for more than 8 weeks?</div>
+            <div class="answer"><em>If "Yes," stop: this is not chronic cough.</em></div>
+        </div>
+        <div class="box">
+            <div class="question"><strong>Question 2:</strong> Red flag symptoms? (e.g., chest pain, hemoptysis, shortness of breath)</div>
+            <div class="answer"><em>If "Yes," recommend urgent referral.</em></div>
+        </div>
+    </div>
+    <div class="main-content">
+        <h2>Decision Path</h2>
         <div id="question-container"></div>
     </div>
 
     <script>
         const questions = {
             0: { 
-                text: "Cough for more than 8 weeks?", 
-                yes: 1, 
-                no: "Stop - No chronic cough"
+                text: "Taking lisinopril, beta blocker, or NSAIDs?", 
+                yes: "Switch medications or stop", 
+                no: 1 
             },
             1: { 
-                text: "Red flag symptoms? (e.g., chest pain, hemoptysis, shortness of breath)", 
-                yes: "Urgent referral needed", 
+                text: "Smoker or just quit smoking?", 
+                yes: "Perform spirometry, consider CT chest, sputum cultures", 
                 no: 2 
             },
             2: { 
-                text: "Taking lisinopril, beta blocker, or NSAIDs?", 
-                yes: "Switch medications or stop", 
+                text: "History of asthma, wheezing, or nighttime coughing?", 
+                yes: "Spirometry, trial of inhaled corticosteroids", 
                 no: 3 
             },
             3: { 
-                text: "Smoker or just quit smoking?", 
-                yes: "Perform spirometry, consider CT chest, sputum cultures", 
-                no: 4 
+                text: "Rhinitis symptoms (e.g., post nasal drip, congestion)?", 
+                yes: 4, 
+                no: 6 
             },
             4: { 
-                text: "History of asthma, wheezing, or nighttime coughing?", 
-                yes: "Spirometry, trial of inhaled corticosteroids", 
+                text: "Smell loss, facial pain, or colored nasal discharge?", 
+                yes: "Treat for sinusitis", 
                 no: 5 
             },
             5: { 
-                text: "Rhinitis symptoms (e.g., post nasal drip, congestion)?", 
-                yes: 6, 
+                text: "Reflux symptoms (heartburn, regurgitation)?", 
+                yes: 7, 
                 no: 8 
             },
             6: { 
-                text: "Smell loss, facial pain, or colored nasal discharge?", 
-                yes: "Treat for sinusitis", 
-                no: 7 
-            },
-            7: { 
-                text: "Reflux symptoms (heartburn, regurgitation)?", 
-                yes: 9, 
-                no: 10 
-            },
-            8: { 
                 text: "Non-allergic rhinitis (triggers like smoke, perfumes)?", 
                 yes: "1st gen antihistamine, +/- nasal steroid", 
-                no: 11 
+                no: 9 
             },
-            9: { 
+            7: { 
                 text: "8-week trial of PPI successful?", 
                 yes: "Stop PPI", 
                 no: "Refer to GI for EGD"
             },
-            10: { 
+            8: { 
                 text: "Allergic rhinitis (triggers like dust, pets, pollen)?", 
                 yes: "2nd gen antihistamine + nasal steroid", 
-                no: 12 
+                no: 10 
             },
-            11: { 
+            9: { 
                 text: "Neurogenic cough symptoms (tickle in throat, talking triggers cough)?", 
                 yes: "Gabapentin or nortriptyline trial", 
-                no: 13 
+                no: 11 
             },
-            12: { 
+            10: { 
                 text: "Chronic refractory cough (mainly at night)?", 
                 yes: "Tramadol trial", 
                 no: "Refer to pulmonary specialist" 
@@ -120,6 +162,7 @@
         };
 
         let currentQuestion = 0;
+        let history = [];
 
         function displayQuestion() {
             const container = document.getElementById("question-container");
@@ -130,6 +173,7 @@
                 result.textContent = questions[currentQuestion];
                 container.appendChild(result);
 
+                addBackButton(container);
                 addResetButton(container);
                 return;
             }
@@ -149,10 +193,12 @@
             noButton.onclick = () => handleAnswer("no");
             container.appendChild(noButton);
 
+            addBackButton(container);
             addResetButton(container);
         }
 
         function handleAnswer(answer) {
+            history.push(currentQuestion);
             const nextStep = questions[currentQuestion][answer];
             if (typeof nextStep === "string") {
                 showResult(nextStep);
@@ -165,6 +211,7 @@
         function showResult(result) {
             const container = document.getElementById("question-container");
             container.innerHTML = `<h3>Outcome:</h3><p>${result}</p>`;
+            addBackButton(container);
             addResetButton(container);
         }
 
@@ -176,9 +223,27 @@
             container.appendChild(resetButton);
         }
 
+        function addBackButton(container) {
+            if (history.length > 0) {
+                const backButton = document.createElement("button");
+                backButton.textContent = "Back";
+                backButton.className = "back-button";
+                backButton.onclick = goBack;
+                container.appendChild(backButton);
+            }
+        }
+
         function resetAlgorithm() {
             currentQuestion = 0;
+            history = [];
             displayQuestion();
+        }
+
+        function goBack() {
+            if (history.length > 0) {
+                currentQuestion = history.pop();
+                displayQuestion();
+            }
         }
 
         displayQuestion();
